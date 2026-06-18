@@ -5,19 +5,27 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const {
-      ip,
-      city,
-      country,
-      latitude,
-      longitude,
-      mapUrl,
-    } = req.body;
+    const { latitude, longitude } = req.body;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({
+        success: false,
+        message: "Latitude and longitude are required",
+      });
+    }
+
+    const ip =
+      (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+      req.socket.remoteAddress ||
+      "unknown";
+
+    const lat = Number(Number(latitude).toFixed(4));
+    const lon = Number(Number(longitude).toFixed(4));
 
     const existing = await Location.findOne({
       ip,
-      latitude,
-      longitude,
+      latitude: lat,
+      longitude: lon,
     });
 
     if (existing) {
@@ -28,12 +36,12 @@ router.post("/", async (req, res) => {
       });
     }
 
+    const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+
     const location = await Location.create({
       ip,
-      city,
-      country,
-      latitude,
-      longitude,
+      latitude: lat,
+      longitude: lon,
       mapUrl,
     });
 

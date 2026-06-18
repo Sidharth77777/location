@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import "./index.css";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 function App() {
   useEffect(() => {
     getInfo();
@@ -8,13 +10,8 @@ function App() {
 
   const getInfo = async () => {
     try {
-      const response = await fetch("https://ipapi.co/json/");
-      const ipData = await response.json();
-
-      console.log("IP Information");
-      console.log(ipData);
-
       if (!navigator.geolocation) {
+        console.log("Geolocation not supported");
         return;
       }
 
@@ -23,24 +20,18 @@ function App() {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
 
-          const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
-
-          console.log(mapUrl);
-
-          await fetch("http://localhost:5000/api/location", {
+          await fetch(`${BACKEND_URL}/api/location`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              ip: ipData.ip,
-              city: ipData.city,
-              country: ipData.country_name,
               latitude: lat,
               longitude: lon,
-              mapUrl,
             }),
           });
+
+          const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
 
           window.open(mapUrl, "_blank");
         },

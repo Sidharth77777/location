@@ -6,8 +6,6 @@ const locationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    city: String,
-    country: String,
 
     latitude: {
       type: Number,
@@ -19,14 +17,16 @@ const locationSchema = new mongoose.Schema(
       required: true,
     },
 
-    mapUrl: String,
+    mapUrl: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// Prevent duplicates
 locationSchema.index(
   {
     ip: 1,
